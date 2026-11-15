@@ -1,10 +1,10 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.rest.controller;
 
 import com.jcaa.usersmanagement.infrastructure.config.OpenApiConfig;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.request.CreateUserRestRequest;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.request.UpdateUserRestRequest;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.request.CreateContratoRestRequest;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.request.UpdatContratoRestRequest;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.response.ApiErrorResponse;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.response.UserRestResponse;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.response.ContratoRestResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.ArraySchema;
@@ -19,202 +19,158 @@ import java.util.List;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 
-/**
- * Contrato OpenAPI / Swagger para {@link UserRestController}.
- *
- * <p>Toda la documentación de la API (anotaciones {@code @Operation}, {@code @ApiResponses}, etc.)
- * vive aquí para mantener el controlador limpio y enfocado únicamente en la lógica de despacho.
- */
-@Tag(name = "Users", description = "Gestión de usuarios: crear, consultar, actualizar y eliminar.")
-public interface UserRestControllerDocs {
+@Tag(name = "Contratos", description = "Gestión de contratos: crear, consultar, actualizar y eliminar.")
+@SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
+public interface ContratoRestControllerDocs {
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // POST /api/users
-  // ─────────────────────────────────────────────────────────────────────────────
+    @Operation(
+            summary = "Crear contrato",
+            description = "Registra un nuevo contrato asociado a un usuario existente.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "201",
+                    description = "Contrato creado exitosamente.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ContratoRestResponse.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos de entrada inválidos.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Usuario asociado no encontrado.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ContratoRestResponse create(@Valid @RequestBody CreateContratoRestRequest request);
 
-  @Operation(
-      summary = "Crear usuario",
-      description =
-          "Registra un nuevo usuario en el sistema. "
-              + "El ID debe ser único y el correo no puede estar en uso. "
-              + "Se enviará un correo de bienvenida con las credenciales al registrarlo.")
-  @ApiResponses({
-    @ApiResponse(
-        responseCode = "201",
-        description = "Usuario creado exitosamente.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UserRestResponse.class))),
-    @ApiResponse(
-        responseCode = "400",
-        description = "Datos de entrada inválidos (campos requeridos vacíos o formato incorrecto).",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "409",
-        description = "Ya existe un usuario registrado con ese correo electrónico.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Error interno del servidor.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class)))
-  })
-  UserRestResponse create(@Valid @RequestBody CreateUserRestRequest request);
+    @Operation(
+            summary = "Listar todos los contratos",
+            description = "Retorna la lista completa de contratos.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Lista de contratos obtenida exitosamente.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            array = @ArraySchema(schema = @Schema(implementation = ContratoRestResponse.class)))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    List<ContratoRestResponse> getAll();
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // GET /api/users
-  // ─────────────────────────────────────────────────────────────────────────────
+    @Operation(
+            summary = "Obtener contrato por ID",
+            description = "Retorna los datos de un contrato específico identificado por su ID.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Contrato encontrado.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ContratoRestResponse.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe ningún contrato con el ID proporcionado.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ContratoRestResponse getById(
+            @Parameter(description = "ID numérico del contrato.", example = "1", required = true)
+            @PathVariable
+            Integer id);
 
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
-  @Operation(
-      summary = "Listar todos los usuarios",
-      description = "Retorna la lista completa de usuarios ordenada alfabéticamente por nombre.")
-  @ApiResponses({
-    @ApiResponse(
-        responseCode = "200",
-        description = "Lista de usuarios obtenida exitosamente. Puede ser vacía.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                array = @ArraySchema(schema = @Schema(implementation = UserRestResponse.class)))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Error interno del servidor.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class)))
-  })
-  @SuppressWarnings("unused") // Invocado por Spring MVC y leído por springdoc mediante reflexión.
-  List<UserRestResponse> getAll();
+    @Operation(
+            summary = "Actualizar contrato",
+            description = "Actualiza los datos de un contrato existente.")
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Contrato actualizado exitosamente.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ContratoRestResponse.class))),
+            @ApiResponse(
+                    responseCode = "400",
+                    description = "Datos de entrada inválidos.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Contrato o usuario asociado no encontrado.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    ContratoRestResponse update(
+            @Parameter(description = "ID numérico del contrato a actualizar.", example = "1", required = true)
+            @PathVariable
+            Integer id,
+            @Valid @RequestBody UpdatContratoRestRequest request);
 
-  // ─────────────────────────────────────────────────────────────────────────────
-  // GET /api/users/{id}
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
-  @Operation(
-      summary = "Obtener usuario por ID",
-      description = "Retorna los datos de un usuario específico identificado por su ID único.")
-  @ApiResponses({
-    @ApiResponse(
-        responseCode = "200",
-        description = "Usuario encontrado.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UserRestResponse.class))),
-    @ApiResponse(
-        responseCode = "404",
-        description = "No existe ningún usuario con el ID proporcionado.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Error interno del servidor.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class)))
-  })
-  UserRestResponse getById(
-      @Parameter(description = "ID único del usuario.", example = "usr-001", required = true)
-          @PathVariable
-          String id);
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // PUT /api/users/{id}
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
-  @Operation(
-      summary = "Actualizar usuario",
-      description =
-          "Actualiza los datos de un usuario existente. "
-              + "Si se cambia el correo, este no debe estar en uso por otro usuario. "
-              + "Se enviará un correo de notificación de actualización.")
-  @ApiResponses({
-    @ApiResponse(
-        responseCode = "200",
-        description = "Usuario actualizado exitosamente.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = UserRestResponse.class))),
-    @ApiResponse(
-        responseCode = "400",
-        description = "Datos de entrada inválidos.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "404",
-        description = "No existe ningún usuario con el ID proporcionado.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "409",
-        description = "El nuevo correo ya está en uso por otro usuario.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Error interno del servidor.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class)))
-  })
-  UserRestResponse update(
-      @Parameter(description = "ID único del usuario a actualizar.", example = "usr-001", required = true)
-          @PathVariable
-          String id,
-      @Valid @RequestBody UpdateUserRestRequest request);
-
-  // ─────────────────────────────────────────────────────────────────────────────
-  // DELETE /api/users/{id}
-  // ─────────────────────────────────────────────────────────────────────────────
-
-  @SecurityRequirement(name = OpenApiConfig.BEARER_AUTH)
-  @Operation(
-      summary = "Eliminar usuario",
-      description = "Elimina permanentemente un usuario del sistema por su ID.")
-  @ApiResponses({
-    @ApiResponse(responseCode = "204", description = "Usuario eliminado exitosamente."),
-    @ApiResponse(
-        responseCode = "404",
-        description = "No existe ningún usuario con el ID proporcionado.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class))),
-    @ApiResponse(
-        responseCode = "500",
-        description = "Error interno del servidor.",
-        content =
-            @Content(
-                mediaType = "application/json",
-                schema = @Schema(implementation = ApiErrorResponse.class)))
-  })
-  void delete(
-      @Parameter(description = "ID único del usuario a eliminar.", example = "usr-001", required = true)
-          @PathVariable
-          String id);
+    @Operation(
+            summary = "Eliminar contrato",
+            description = "Elimina permanentemente un contrato del sistema por su ID.")
+    @ApiResponses({
+            @ApiResponse(responseCode = "204", description = "Contrato eliminado exitosamente."),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "No existe ningún contrato con el ID proporcionado.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class))),
+            @ApiResponse(
+                    responseCode = "500",
+                    description = "Error interno del servidor.",
+                    content =
+                    @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = ApiErrorResponse.class)))
+    })
+    void delete(
+            @Parameter(description = "ID numérico del contrato a eliminar.", example = "1", required = true)
+            @PathVariable
+            Integer id);
 }
-
