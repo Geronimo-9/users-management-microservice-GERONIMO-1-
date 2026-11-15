@@ -1,23 +1,14 @@
-package org.contrato.model.domain.exception;
+package com.jcaa.usersmanagement.domain.exception;
 
-import java.time.LocalDate;
+public final class ValoresNulosExcepcion extends DomainException {
 
-public class ValoresNulosExcepcion extends DomainException {
+    private static final String PARAMETRO_NULO = "El parámetro '%s' no puede ser nulo.";
 
-    public static final String PARAMETRO_NULO = "El parametro '%s' esta nulo";
-    
-    
-    public ValoresNulosExcepcion(String message) {
+    private ValoresNulosExcepcion(final String message) {
         super(message);
     }
 
-    public static ValoresNulosExcepcion parametroNulo(String valorInvalido) {
-        return new ValoresNulosExcepcion(String.format(PARAMETRO_NULO, valorInvalido));
+    public static ValoresNulosExcepcion parametroNulo(final String campo) {
+        return new ValoresNulosExcepcion(String.format(PARAMETRO_NULO, campo));
     }
-
-    public static ValoresNulosExcepcion fechaNula(LocalDate valorInvalido) {
-        return new ValoresNulosExcepcion(String.format(PARAMETRO_NULO, valorInvalido));
-    }
-    
-    
 }

@@ -1,22 +1,27 @@
-package org.contrato.model.domain.exception;
+package com.jcaa.usersmanagement.domain.exception;
 
+public final class FechaInvalidaExcepcion extends DomainException {
 
-import java.time.LocalDate;
+    private static final String PLAZOS_INCONSISTENTES =
+            "Los plazos presentan inconsistencias. La fecha de fin no puede ser anterior a la fecha de inicio.";
+    private static final String FIRMA_POSTERIOR_A_FIN =
+            "La fecha de firma no puede ser posterior a la fecha de finalización del contrato.";
+    private static final String FORMATO_FECHA =
+            "La fecha '%s' del campo '%s' no tiene un formato válido (AAAA-MM-DD).";
 
-public class FechaInvalidaExcepcion extends DomainException{
-
-    protected static final String PLAZOS_INCONSISTENTE = "Los plazos presentan inconsistencias. Asegurese que el rango de tiempo sean validos";
-
-
-
-    public FechaInvalidaExcepcion(String message) {
+    private FechaInvalidaExcepcion(final String message) {
         super(message);
     }
 
-
-    public static FechaInvalidaExcepcion fechaInconsistente(){
-        return new FechaInvalidaExcepcion(String.format(PLAZOS_INCONSISTENTE));
+    public static FechaInvalidaExcepcion fechaInconsistente() {
+        return new FechaInvalidaExcepcion(PLAZOS_INCONSISTENTES);
     }
 
+    public static FechaInvalidaExcepcion firmaPosteriorAFin() {
+        return new FechaInvalidaExcepcion(FIRMA_POSTERIOR_A_FIN);
+    }
 
+    public static FechaInvalidaExcepcion formatoFecha(final String campo, final String valor) {
+        return new FechaInvalidaExcepcion(String.format(FORMATO_FECHA, valor, campo));
+    }
 }
