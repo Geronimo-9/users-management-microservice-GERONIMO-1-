@@ -1,74 +1,66 @@
 package com.jcaa.usersmanagement.application.service;
 
-import com.jcaa.usersmanagement.application.port.in.UpdateUserUseCase;
-import com.jcaa.usersmanagement.application.port.out.GetUserByEmailPort;
+import com.jcaa.usersmanagement.application.port.in.UpdateContratoUseCase;
+import com.jcaa.usersmanagement.application.port.out.GetContratoByIdPort;
 import com.jcaa.usersmanagement.application.port.out.GetUserByIdPort;
-import com.jcaa.usersmanagement.application.port.out.UpdateUserPort;
-import com.jcaa.usersmanagement.application.service.dto.command.UpdateUserCommand;
-import com.jcaa.usersmanagement.application.service.mapper.UserApplicationMapper;
-import com.jcaa.usersmanagement.domain.exception.UserAlreadyExistsException;
+import com.jcaa.usersmanagement.application.port.out.UpdateContratoPort;
+import com.jcaa.usersmanagement.application.service.dto.command.UpdateContratoCommand;
+import com.jcaa.usersmanagement.application.service.mapper.ContratoApplicationMapper;
+import com.jcaa.usersmanagement.domain.exception.ContratoNotFoundException;
 import com.jcaa.usersmanagement.domain.exception.UserNotFoundException;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 import com.jcaa.usersmanagement.domain.model.UserModel;
-import com.jcaa.usersmanagement.domain.valueobject.UserEmail;
 import com.jcaa.usersmanagement.domain.valueobject.UserId;
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.ConstraintViolationException;
 import jakarta.validation.Validator;
+import java.util.Set;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.Set;
-
 @Service
 @RequiredArgsConstructor
-public class UpdateUserService implements UpdateUserUseCase {
+public class UpdateContratoService implements UpdateContratoUseCase {
 
-  private final UpdateUserPort updateUserPort;
+  private final UpdateContratoPort updateContratoPort;
+  private final GetContratoByIdPort getContratoByIdPort;
   private final GetUserByIdPort getUserByIdPort;
-  private final GetUserByEmailPort getUserByEmailPort;
   private final EmailNotificationService emailNotificationService;
   private final Validator validator;
 
   @Override
-  public UserModel execute(final UpdateUserCommand command) {
+  public Contrato execute(final UpdateContratoCommand command) {
     validateCommand(command);
 
-    final UserId userId = new UserId(command.id());
-    final UserModel current = findExistingUserOrFail(userId);
-    final UserEmail newEmail = new UserEmail(command.email());
+    ensureContratoExists(command.id());
+    final UserId userId = new UserId(command.idUsuario());
+    final UserModel user = findExistingUserOrFail(userId);
 
-    ensureEmailIsNotTakenByAnotherUser(newEmail, userId);
+    final Contrato contratoToUpdate = ContratoApplicationMapper.fromUpdateCommandToModel(command);
+    final Contrato updatedContrato = updateContratoPort.update(contratoToUpdate);
 
-    final UserModel userToUpdate =
-        UserApplicationMapper.fromUpdateCommandToModel(command, current.getPassword());
-    final UserModel updatedUser = updateUserPort.update(userToUpdate);
+    emailNotificationService.notifyContratoUpdated(updatedContrato, user);
 
-    emailNotificationService.notifyUserUpdated(updatedUser);
-
-    return updatedUser;
+    return updatedContrato;
   }
 
-  private void validateCommand(final UpdateUserCommand command) {
-    final Set<ConstraintViolation<UpdateUserCommand>> violations = validator.validate(command);
+  private void validateCommand(final UpdateContratoCommand command) {
+    final Set<ConstraintViolation<UpdateContratoCommand>> violations = validator.validate(command);
     if (!violations.isEmpty()) {
       throw new ConstraintViolationException(violations);
     }
   }
 
-  private UserModel findExistingUserOrFail(final UserId userId) {
-    return getUserByIdPort
-        .getById(userId)
-        .orElseThrow(() -> UserNotFoundException.becauseIdWasNotFound(userId.value()));
+  private void ensureContratoExists(final Integer contratoId) {
+    getContratoByIdPort
+            .getById(contratoId)
+            .orElseThrow(
+                    () -> ContratoNotFoundException.becauseIdWasNotFound(String.valueOf(contratoId)));
   }
 
-  private void ensureEmailIsNotTakenByAnotherUser(final UserEmail newEmail, final UserId ownerId) {
-    getUserByEmailPort
-        .getByEmail(newEmail)
-        .ifPresent(
-            found -> {
-              if (!found.getId().equals(ownerId)) {
-                throw UserAlreadyExistsException.becauseEmailAlreadyExists(newEmail.value());
-              }
-            });
+  private UserModel findExistingUserOrFail(final UserId userId) {
+    return getUserByIdPort
+            .getById(userId)
+            .orElseThrow(() -> UserNotFoundException.becauseIdWasNotFound(userId.value()));
   }
 }

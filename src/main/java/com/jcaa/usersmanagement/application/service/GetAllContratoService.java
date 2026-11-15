@@ -1,21 +1,20 @@
 package com.jcaa.usersmanagement.application.service;
 
-import com.jcaa.usersmanagement.application.port.in.GetAllUsersUseCase;
-import com.jcaa.usersmanagement.application.port.out.GetAllUsersPort;
-import com.jcaa.usersmanagement.domain.model.UserModel;
+import com.jcaa.usersmanagement.application.port.in.GetAllContratoUseCase;
+import com.jcaa.usersmanagement.application.port.out.GetAllContratoPort;
+import com.jcaa.usersmanagement.domain.model.Contrato;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-
 @Service
 @RequiredArgsConstructor
-public class GetAllUsersService implements GetAllUsersUseCase {
+public class GetAllContratoService implements GetAllContratoUseCase {
 
-  private final GetAllUsersPort getAllUsersPort;
+  private final GetAllContratoPort getAllContratoPort;
 
   @Override
-  public List<UserModel> execute() {
-    return getAllUsersPort.getAll();
+  public List<Contrato> execute() {
+    return getAllContratoPort.getAll();
   }
 }
