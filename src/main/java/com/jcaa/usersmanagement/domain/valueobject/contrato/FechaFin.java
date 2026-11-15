@@ -1,24 +1,35 @@
-package org.contrato.model.domain.valueobject.contrato;
+package com.jcaa.usersmanagement.domain.valueobject.contrato;
 
-import org.contrato.model.domain.exception.FormatoInvalidoExcepcion;
-import org.contrato.model.domain.exception.ParametrosVaciosExcepcion;
-import org.contrato.model.domain.exception.ValoresNulosExcepcion;
-
+import com.jcaa.usersmanagement.domain.exception.FechaInvalidaExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ValoresNulosExcepcion;
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
 
-public record FechaFin(LocalDate fecha) {
-    private static final LocalDate FECHA_NULA = null;
+public record FechaFin(LocalDate value) {
 
-
-
-    public FechaFin{
-        validarFechaNula(fecha);
+    public FechaFin {
+        if (value == null) {
+            throw ValoresNulosExcepcion.parametroNulo("fechaFin");
+        }
     }
 
-
-    private static void validarFechaNula(final LocalDate fecha){
-        if (fecha == FECHA_NULA) {
-            throw ValoresNulosExcepcion.fechaNula(fecha);
+    public static FechaFin fromString(final String rawDate) {
+        if (rawDate == null) {
+            throw ValoresNulosExcepcion.parametroNulo("fechaFin");
         }
+        try {
+            return new FechaFin(LocalDate.parse(rawDate.trim()));
+        } catch (final DateTimeParseException ex) {
+            throw FechaInvalidaExcepcion.formatoFecha("fechaFin", rawDate);
+        }
+    }
+
+    public boolean isBefore(final FechaInicio inicio) {
+        return value.isBefore(inicio.value());
+    }
+
+    @Override
+    public String toString() {
+        return value.toString();
     }
 }

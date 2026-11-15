@@ -1,47 +1,31 @@
-package org.contrato.model.domain.valueobject.contrato;
+package com.jcaa.usersmanagement.domain.valueobject.contrato;
 
-import org.contrato.model.domain.entity.Usuario;
-import org.contrato.model.domain.exception.FormatoInvalidoExcepcion;
-import org.contrato.model.domain.exception.ParametrosVaciosExcepcion;
-import org.contrato.model.domain.exception.ValoresNulosExcepcion;
+import com.jcaa.usersmanagement.domain.exception.FormatoInvalidoExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ParametrosVaciosExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ValoresNulosExcepcion;
+import java.util.regex.Pattern;
 
-import java.util.Objects;
+public record Empleado(String value) {
 
-public record Empleado(String valores) {
+    // Permite letras (con tildes/ñ) y espacios entre nombres/apellidos
+    private static final Pattern EMPLEADO_PATTERN = Pattern.compile("^[\\p{L}][\\p{L} ]*$");
 
-    private static final String SOLO_LETRAS = "^[a-zA-Z]+$";
-    private static final String CANTIDAD_NULA =  null;
-
-
-    public Empleado{
-        validarCampoNulo(valores);
-        final String normalizarValor= Objects.requireNonNull(valores, "Los nombres van sin caracteres especiales, ni numéricos").trim();
-        validarSinEmpezar(normalizarValor);
-        validarSoloLetras(normalizarValor);
-        valores = normalizarValor;
-
-
-    }
-
-    private static void validarCampoNulo(String valores){
-        if (valores == CANTIDAD_NULA) {
-            throw ValoresNulosExcepcion.parametroNulo(valores);
+    public Empleado {
+        if (value == null) {
+            throw ValoresNulosExcepcion.parametroNulo("empleado");
         }
-    }
-
-    private static void validarSinEmpezar(final String normalizarValor){
-        if (normalizarValor.isEmpty()) {
-            throw ParametrosVaciosExcepcion.parametroVacio(normalizarValor);
+        final String normalized = value.trim();
+        if (normalized.isEmpty()) {
+            throw ParametrosVaciosExcepcion.parametroVacio("empleado");
         }
-    }
-
-    private static void validarSoloLetras(final String valores){
-        if (!valores.matches(SOLO_LETRAS)){
-            throw FormatoInvalidoExcepcion.formatoIncorrecto(valores);
+        if (!EMPLEADO_PATTERN.matcher(normalized).matches()) {
+            throw FormatoInvalidoExcepcion.formatoIncorrecto("empleado", normalized);
         }
+        value = normalized;
     }
 
-
-
-
+    @Override
+    public String toString() {
+        return value;
+    }
 }

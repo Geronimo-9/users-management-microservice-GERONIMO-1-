@@ -1,40 +1,23 @@
-package org.contrato.model.domain.valueobject.contrato;
+package com.jcaa.usersmanagement.domain.valueobject.contrato;
 
-import org.contrato.model.domain.exception.ParametrosVaciosExcepcion;
-import org.contrato.model.domain.exception.ValoresNulosExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ParametrosVaciosExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ValoresNulosExcepcion;
 
-public record Funciones(String texto) {
+public record Funciones(String value) {
 
-    private static final String CANTIDAD_NULA =  null;
-
-    public Funciones{
-    validarCampoNulo(texto);
-    validarSinEmpezar(texto);
-
-
-
-    }
-
-    private static void validarCampoNulo(String valores){
-        if (valores == CANTIDAD_NULA) {
-            throw ValoresNulosExcepcion.parametroNulo(valores);
+    public Funciones {
+        if (value == null) {
+            throw ValoresNulosExcepcion.parametroNulo("funciones");
         }
-    }
-
-    private static void validarSinEmpezar(final String normalizarValor){
-        if (normalizarValor.isEmpty()) {
-            throw ParametrosVaciosExcepcion.parametroVacio(normalizarValor);
+        final String normalized = value.trim();
+        if (normalized.isEmpty()) {
+            throw ParametrosVaciosExcepcion.parametroVacio("funciones");
         }
+        value = normalized;
     }
 
-
-
-
-
-
-
-
-
-
-
+    @Override
+    public String toString() {
+        return value;
+    }
 }
