@@ -1,7 +1,7 @@
 package com.jcaa.usersmanagement.application.port.out;
 
-import com.jcaa.usersmanagement.domain.model.UserModel;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 
-public interface SaveUserPort {
-  UserModel save(UserModel user);
+public interface SaveContratoPort {
+  Contrato save(Contrato contrato);
 }
