@@ -1,20 +1,20 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler;
 
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.UserResponsePrinter;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.UserController;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UserResponse;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ContratoResponsePrinter;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.ContratoController;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.ContratoResponse;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class ListUsersHandler implements OperationHandler {
+public final class ListContratoHandler implements OperationHandler {
 
-  private final UserController userController;
-  private final UserResponsePrinter printer;
+  private final ContratoController contratoController;
+  private final ContratoResponsePrinter printer;
 
   @Override
   public void handle() {
-    final List<UserResponse> users = userController.listAllUsers();
-    printer.printList(users);
+    final List<ContratoResponse> contratos = contratoController.listAllContratos();
+    printer.printList(contratos);
   }
 }

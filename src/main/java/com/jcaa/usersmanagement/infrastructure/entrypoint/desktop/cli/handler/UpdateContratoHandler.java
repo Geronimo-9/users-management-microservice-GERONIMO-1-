@@ -1,41 +1,55 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler;
 
+import com.jcaa.usersmanagement.domain.exception.ContratoNotFoundException;
 import com.jcaa.usersmanagement.domain.exception.UserNotFoundException;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ConsoleIO;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.UserResponsePrinter;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.UserController;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UpdateUserRequest;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UserResponse;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ContratoResponsePrinter;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.ContratoController;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.ContratoResponse;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UpdateContratoRequest;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class UpdateUserHandler implements OperationHandler {
+public final class UpdateContratoHandler implements OperationHandler {
 
-  private final UserController userController;
+  private final ContratoController contratoController;
   private final ConsoleIO console;
-  private final UserResponsePrinter printer;
+  private final ContratoResponsePrinter printer;
 
   @Override
   public void handle() {
-    final String id       = console.readRequired("User ID                                       : ");
-    final String name     = console.readRequired("New name                                      : ");
-    final String email    = console.readRequired("New email                                     : ");
-    final String password = console.readOptional("New password (leave blank to keep current)    : ");
-    final String role     = console.readRequired("Role   (ADMIN / MEMBER / REVIEWER)            : ");
-    final String status   = console.readRequired("Status (ACTIVE / INACTIVE / PENDING / BLOCKED): ");
+    final int id = console.readInt("Contrato ID                                         : ");
+    final String idUsuario = console.readRequired("User ID                                             : ");
+    final String empresa = console.readRequired("Empresa                                             : ");
+    final String empleado = console.readRequired("Empleado                                            : ");
+    final String funciones = console.readRequired("Funciones                                           : ");
+    final BigDecimal monto = new BigDecimal(console.readRequired("Monto                                               : "));
+    final String frecuencia = console.readRequired("Frecuencia (SEMANAL/QUINCENAL/MENSUAL/SEMESTRAL/ANUAL): ");
+    final LocalDate fechaFirma = LocalDate.parse(console.readRequired("Fecha Firma (YYYY-MM-DD)                            : "));
+    final LocalDate fechaInicio = LocalDate.parse(console.readRequired("Fecha Inicio (YYYY-MM-DD)                           : "));
+    final LocalDate fechaFin = LocalDate.parse(console.readRequired("Fecha Fin (YYYY-MM-DD)                              : "));
+    final String estado = console.readRequired("Estado (VIGENTE / VENCIDO)                          : ");
 
     try {
-      final UserResponse updated = userController.updateUser(
-          new UpdateUserRequest(
-              id,
-              name,
-              email,
-              password.isBlank() ? null : password,
-              role,
-              status));
-      console.println("\n  User updated successfully.");
+      final ContratoResponse updated =
+              contratoController.updateContrato(
+                      new UpdateContratoRequest(
+                              id,
+                              idUsuario,
+                              empresa,
+                              empleado,
+                              funciones,
+                              monto,
+                              frecuencia,
+                              fechaFirma,
+                              fechaInicio,
+                              fechaFin,
+                              estado));
+      console.println("\n  Contrato updated successfully.");
       printer.print(updated);
-    } catch (final UserNotFoundException exception) {
+    } catch (final ContratoNotFoundException | UserNotFoundException exception) {
       console.println("  Not found: " + exception.getMessage());
     }
   }
