@@ -1,169 +1,169 @@
 package com.jcaa.usersmanagement.infrastructure.adapter.persistence.repository;
 
-import com.jcaa.usersmanagement.application.port.out.DeleteUserPort;
-import com.jcaa.usersmanagement.application.port.out.GetAllUsersPort;
-import com.jcaa.usersmanagement.application.port.out.GetUserByEmailPort;
-import com.jcaa.usersmanagement.application.port.out.GetUserByIdPort;
-import com.jcaa.usersmanagement.application.port.out.SaveUserPort;
-import com.jcaa.usersmanagement.application.port.out.UpdateUserPort;
-import com.jcaa.usersmanagement.domain.exception.UserNotFoundException;
-import com.jcaa.usersmanagement.domain.model.UserModel;
-import com.jcaa.usersmanagement.domain.valueobject.UserEmail;
-import com.jcaa.usersmanagement.domain.valueobject.UserId;
-import com.jcaa.usersmanagement.infrastructure.adapter.persistence.dto.UserPersistenceDto;
+import com.jcaa.usersmanagement.application.port.out.DeleteContratoPort;
+import com.jcaa.usersmanagement.application.port.out.GetAllContratoPort;
+import com.jcaa.usersmanagement.application.port.out.GetContratoByIdPort;
+import com.jcaa.usersmanagement.application.port.out.SaveContratoPort;
+import com.jcaa.usersmanagement.application.port.out.UpdateContratoPort;
+import com.jcaa.usersmanagement.domain.exception.ContratoNotFoundException;
+import com.jcaa.usersmanagement.domain.model.Contrato;
+import com.jcaa.usersmanagement.infrastructure.adapter.persistence.dto.ContratoPersistenceDto;
 import com.jcaa.usersmanagement.infrastructure.adapter.persistence.exception.PersistenceException;
-import com.jcaa.usersmanagement.infrastructure.adapter.persistence.mapper.UserPersistenceMapper;
+import com.jcaa.usersmanagement.infrastructure.adapter.persistence.mapper.ContratoPersistenceMapper;
+import java.sql.Connection;
+import java.sql.Date;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.List;
+import java.util.Optional;
+import javax.sql.DataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Repository;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.List;
-import java.util.Optional;
-
 @Slf4j
 @Repository
 @RequiredArgsConstructor
-public class UserRepositoryMySQL
-    implements SaveUserPort,
-        UpdateUserPort,
-        GetUserByIdPort,
-        GetUserByEmailPort,
-        GetAllUsersPort,
-        DeleteUserPort {
+public class ContratoRepositoryMySQL
+        implements SaveContratoPort,
+        UpdateContratoPort,
+        GetContratoByIdPort,
+        GetAllContratoPort,
+        DeleteContratoPort {
 
   private static final String SQL_INSERT =
-      "INSERT INTO users "
-      + "(id, name, email, password, role, status, created_at, updated_at) "
-      + "VALUES (?, ?, ?, ?, ?, ?, NOW(), NOW())";
+          "INSERT INTO contratos "
+                  + "(id_usuario, empresa, empleado, funciones, monto, frecuencia_pago, "
+                  + "fecha_firma, fecha_inicio, fecha_fin, estado, created_at, updated_at) "
+                  + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW(), NOW())";
 
   private static final String SQL_UPDATE =
-      "UPDATE users SET name = ?, email = ?, password = ?, role = ?, status = ?, updated_at = NOW() "
-      + "WHERE id = ?";
+          "UPDATE contratos SET id_usuario = ?, empresa = ?, empleado = ?, funciones = ?, "
+                  + "monto = ?, frecuencia_pago = ?, fecha_firma = ?, fecha_inicio = ?, "
+                  + "fecha_fin = ?, estado = ?, updated_at = NOW() "
+                  + "WHERE id = ?";
 
   private static final String SQL_SELECT_BY_ID =
-      "SELECT id, name, email, password, role, status, created_at, updated_at "
-      + "FROM users "
-      + "WHERE id = ? LIMIT 1";
-
-  private static final String SQL_SELECT_BY_EMAIL =
-      "SELECT id, name, email, password, role, status, created_at, updated_at "
-      + "FROM users "
-      + "WHERE email = ? LIMIT 1";
+          "SELECT id, id_usuario, empresa, empleado, funciones, monto, frecuencia_pago, "
+                  + "fecha_firma, fecha_inicio, fecha_fin, estado, created_at, updated_at "
+                  + "FROM contratos "
+                  + "WHERE id = ? LIMIT 1";
 
   private static final String SQL_SELECT_ALL =
-      "SELECT id, name, email, password, role, status, created_at, updated_at "
-      + "FROM users "
-      + "ORDER BY name ASC";
+          "SELECT id, id_usuario, empresa, empleado, funciones, monto, frecuencia_pago, "
+                  + "fecha_firma, fecha_inicio, fecha_fin, estado, created_at, updated_at "
+                  + "FROM contratos "
+                  + "ORDER BY id DESC";
 
   private static final String SQL_DELETE =
-        "DELETE FROM users "
-        + "WHERE id = ?";
+          "DELETE FROM contratos "
+                  + "WHERE id = ?";
 
   private final DataSource dataSource;
 
   @Override
-  public UserModel save(final UserModel user) {
-    final UserPersistenceDto dto = UserPersistenceMapper.fromModelToDto(user);
-    executeSave(dto);
-    return findByIdOrFail(user.getId());
+  public Contrato save(final Contrato contrato) {
+    final ContratoPersistenceDto dto = ContratoPersistenceMapper.fromModelToDto(contrato);
+    final Integer generatedId = executeSave(dto);
+    return findByIdOrFail(generatedId);
   }
 
   @Override
-  public UserModel update(final UserModel user) {
-    final UserPersistenceDto dto = UserPersistenceMapper.fromModelToDto(user);
+  public Contrato update(final Contrato contrato) {
+    final ContratoPersistenceDto dto = ContratoPersistenceMapper.fromModelToDto(contrato);
     executeUpdate(dto);
-    return findByIdOrFail(user.getId());
+    return findByIdOrFail(contrato.getId());
   }
 
   @Override
-  public Optional<UserModel> getById(final UserId userId) {
+  public Optional<Contrato> getById(final Integer contratoId) {
     try (final Connection connection = dataSource.getConnection();
          final PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_ID)) {
-      statement.setString(1, userId.value());
+      statement.setInt(1, contratoId);
       final ResultSet resultSet = statement.executeQuery();
       if (!resultSet.next()) {
         return Optional.empty();
       }
-      return Optional.of(UserPersistenceMapper.fromResultSetToModel(resultSet));
+      return Optional.of(ContratoPersistenceMapper.fromResultSetToModel(resultSet));
     } catch (final SQLException exception) {
-      throw PersistenceException.becauseFindByIdFailed(userId.value(), exception);
+      throw PersistenceException.becauseContratoFindByIdFailed(contratoId, exception);
     }
   }
 
   @Override
-  public Optional<UserModel> getByEmail(final UserEmail email) {
-    try (final Connection connection = dataSource.getConnection();
-         final PreparedStatement statement = connection.prepareStatement(SQL_SELECT_BY_EMAIL)) {
-      statement.setString(1, email.value());
-      final ResultSet resultSet = statement.executeQuery();
-      if (!resultSet.next()) {
-        return Optional.empty();
-      }
-      return Optional.of(UserPersistenceMapper.fromResultSetToModel(resultSet));
-    } catch (final SQLException exception) {
-      throw PersistenceException.becauseFindByEmailFailed(email.value(), exception);
-    }
-  }
-
-  @Override
-  public List<UserModel> getAll() {
+  public List<Contrato> getAll() {
     try (final Connection connection = dataSource.getConnection();
          final PreparedStatement statement = connection.prepareStatement(SQL_SELECT_ALL)) {
       final ResultSet resultSet = statement.executeQuery();
-      return UserPersistenceMapper.fromResultSetToModelList(resultSet);
+      return ContratoPersistenceMapper.fromResultSetToModelList(resultSet);
     } catch (final SQLException exception) {
-      throw PersistenceException.becauseFindAllFailed(exception);
+      throw PersistenceException.becauseContratoFindAllFailed(exception);
     }
   }
 
   @Override
-  public void delete(final UserId userId) {
+  public void delete(final Integer contratoId) {
     try (final Connection connection = dataSource.getConnection();
          final PreparedStatement statement = connection.prepareStatement(SQL_DELETE)) {
-      statement.setString(1, userId.value());
+      statement.setInt(1, contratoId);
       statement.executeUpdate();
     } catch (final SQLException exception) {
-      throw PersistenceException.becauseDeleteFailed(userId.value(), exception);
+      throw PersistenceException.becauseContratoDeleteFailed(contratoId, exception);
     }
   }
 
-  private void executeSave(final UserPersistenceDto dto) {
+  private Integer executeSave(final ContratoPersistenceDto dto) {
     try (final Connection connection = dataSource.getConnection();
-         final PreparedStatement statement = connection.prepareStatement(SQL_INSERT)) {
-      statement.setString(1, dto.id());
-      statement.setString(2, dto.name());
-      statement.setString(3, dto.email());
-      statement.setString(4, dto.password());
-      statement.setString(5, dto.role());
-      statement.setString(6, dto.status());
+         final PreparedStatement statement =
+                 connection.prepareStatement(SQL_INSERT, Statement.RETURN_GENERATED_KEYS)) {
+      statement.setString(1, dto.idUsuario());
+      statement.setString(2, dto.empresa());
+      statement.setString(3, dto.empleado());
+      statement.setString(4, dto.funciones());
+      statement.setBigDecimal(5, dto.monto());
+      statement.setString(6, dto.frecuenciaPago());
+      statement.setDate(7, Date.valueOf(dto.fechaFirma()));
+      statement.setDate(8, Date.valueOf(dto.fechaInicio()));
+      statement.setDate(9, Date.valueOf(dto.fechaFin()));
+      statement.setString(10, dto.estado());
       statement.executeUpdate();
+
+      try (final ResultSet generatedKeys = statement.getGeneratedKeys()) {
+        if (generatedKeys.next()) {
+          return generatedKeys.getInt(1);
+        }
+        throw new SQLException("Creating contrato failed, no ID obtained.");
+      }
     } catch (final SQLException exception) {
-      throw PersistenceException.becauseSaveFailed(dto.id(), exception);
+      throw PersistenceException.becauseContratoSaveFailed(dto.idUsuario(), exception);
     }
   }
 
-  private void executeUpdate(final UserPersistenceDto dto) {
+  private void executeUpdate(final ContratoPersistenceDto dto) {
     try (final Connection connection = dataSource.getConnection();
          final PreparedStatement statement = connection.prepareStatement(SQL_UPDATE)) {
-      statement.setString(1, dto.name());
-      statement.setString(2, dto.email());
-      statement.setString(3, dto.password());
-      statement.setString(4, dto.role());
-      statement.setString(5, dto.status());
-      statement.setString(6, dto.id());
+      statement.setString(1, dto.idUsuario());
+      statement.setString(2, dto.empresa());
+      statement.setString(3, dto.empleado());
+      statement.setString(4, dto.funciones());
+      statement.setBigDecimal(5, dto.monto());
+      statement.setString(6, dto.frecuenciaPago());
+      statement.setDate(7, Date.valueOf(dto.fechaFirma()));
+      statement.setDate(8, Date.valueOf(dto.fechaInicio()));
+      statement.setDate(9, Date.valueOf(dto.fechaFin()));
+      statement.setString(10, dto.estado());
+      statement.setInt(11, dto.id());
       statement.executeUpdate();
     } catch (final SQLException exception) {
-      throw PersistenceException.becauseUpdateFailed(dto.id(), exception);
+      throw PersistenceException.becauseContratoUpdateFailed(dto.id(), exception);
     }
   }
 
-  private UserModel findByIdOrFail(final UserId userId) {
-    return getById(userId)
-        .orElseThrow(() -> UserNotFoundException.becauseIdWasNotFound(userId.value()));
+  private Contrato findByIdOrFail(final Integer contratoId) {
+    return getById(contratoId)
+            .orElseThrow(
+                    () -> ContratoNotFoundException.becauseIdWasNotFound(String.valueOf(contratoId)));
   }
 }

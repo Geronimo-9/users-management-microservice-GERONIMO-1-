@@ -10,6 +10,12 @@ public final class PersistenceException extends RuntimeException {
   private static final String MESSAGE_DELETE = "Failed to delete user with ID: '%s'.";
   private static final String MESSAGE_CONNECTION = "Could not establish database connection.";
 
+  private static final String MESSAGE_CONTRATO_SAVE = "Failed to save contrato for user ID: '%s'.";
+  private static final String MESSAGE_CONTRATO_UPDATE = "Failed to update contrato with ID: '%s'.";
+  private static final String MESSAGE_CONTRATO_FIND = "Failed to find contrato with ID: '%s'.";
+  private static final String MESSAGE_CONTRATO_ALL = "Failed to retrieve all contratos.";
+  private static final String MESSAGE_CONTRATO_DELETE = "Failed to delete contrato with ID: '%s'.";
+
   private PersistenceException(final String message, final Throwable cause) {
     super(message, cause);
   }
@@ -19,17 +25,17 @@ public final class PersistenceException extends RuntimeException {
   }
 
   public static PersistenceException becauseUpdateFailed(
-      final String userId, final Throwable cause) {
+          final String userId, final Throwable cause) {
     return new PersistenceException(String.format(MESSAGE_UPDATE, userId), cause);
   }
 
   public static PersistenceException becauseFindByIdFailed(
-      final String userId, final Throwable cause) {
+          final String userId, final Throwable cause) {
     return new PersistenceException(String.format(MESSAGE_FIND, userId), cause);
   }
 
   public static PersistenceException becauseFindByEmailFailed(
-      final String email, final Throwable cause) {
+          final String email, final Throwable cause) {
     return new PersistenceException(String.format(MESSAGE_EMAIL, email), cause);
   }
 
@@ -38,11 +44,35 @@ public final class PersistenceException extends RuntimeException {
   }
 
   public static PersistenceException becauseDeleteFailed(
-      final String userId, final Throwable cause) {
+          final String userId, final Throwable cause) {
     return new PersistenceException(String.format(MESSAGE_DELETE, userId), cause);
   }
 
   public static PersistenceException becauseConnectionFailed(final Throwable cause) {
     return new PersistenceException(MESSAGE_CONNECTION, cause);
+  }
+
+  public static PersistenceException becauseContratoSaveFailed(
+          final String idUsuario, final Throwable cause) {
+    return new PersistenceException(String.format(MESSAGE_CONTRATO_SAVE, idUsuario), cause);
+  }
+
+  public static PersistenceException becauseContratoUpdateFailed(
+          final Integer contratoId, final Throwable cause) {
+    return new PersistenceException(String.format(MESSAGE_CONTRATO_UPDATE, contratoId), cause);
+  }
+
+  public static PersistenceException becauseContratoFindByIdFailed(
+          final Integer contratoId, final Throwable cause) {
+    return new PersistenceException(String.format(MESSAGE_CONTRATO_FIND, contratoId), cause);
+  }
+
+  public static PersistenceException becauseContratoFindAllFailed(final Throwable cause) {
+    return new PersistenceException(MESSAGE_CONTRATO_ALL, cause);
+  }
+
+  public static PersistenceException becauseContratoDeleteFailed(
+          final Integer contratoId, final Throwable cause) {
+    return new PersistenceException(String.format(MESSAGE_CONTRATO_DELETE, contratoId), cause);
   }
 }
