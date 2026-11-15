@@ -1,14 +1,25 @@
-package org.contrato.model.domain.entity;
+package com.jcaa.usersmanagement.domain.model;
 
+import com.jcaa.usersmanagement.domain.enums.Estado;
+import com.jcaa.usersmanagement.domain.enums.FrecuenciaPago;
+import com.jcaa.usersmanagement.domain.exception.FechaInvalidaExcepcion;
+import com.jcaa.usersmanagement.domain.exception.ValoresNulosExcepcion;
+import com.jcaa.usersmanagement.domain.valueobject.UserId;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.Empleado;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.Empresa;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.FechaFin;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.FechaFirma;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.FechaInicio;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.Funciones;
+import com.jcaa.usersmanagement.domain.valueobject.contrato.Monto;
+import java.time.LocalDate;
+import lombok.Value;
 
-import org.contrato.model.domain.exception.FechaInvalidaExcepcion;
-import org.contrato.model.domain.valueobject.contrato.*;
-import org.contrato.model.domain.valueobject.usuario.IdUsuario;
+@Value
+public class Contrato {
 
-
-public class Contrato{
-
-    IdUsuario idUsuario; //---Foreing Key
+    Integer id; // Auto-incrementable en BD (null antes de persistir)
+    UserId idUsuario;
     Empresa empresa;
     Empleado empleado;
     Funciones funciones;
@@ -19,155 +30,103 @@ public class Contrato{
     FechaFin fechaFin;
     Estado estado;
 
-    public Contrato() {
+    public Contrato(
+            final Integer id,
+            final UserId idUsuario,
+            final Empresa empresa,
+            final Empleado empleado,
+            final Funciones funciones,
+            final Monto monto,
+            final FrecuenciaPago frecuenciaPago,
+            final FechaFirma fechaFirma,
+            final FechaInicio fechaInicio,
+            final FechaFin fechaFin,
+            final Estado estado) {
+        this.id = id;
+        this.idUsuario = requireNonNull(idUsuario, "idUsuario");
+        this.empresa = requireNonNull(empresa, "empresa");
+        this.empleado = requireNonNull(empleado, "empleado");
+        this.funciones = requireNonNull(funciones, "funciones");
+        this.monto = requireNonNull(monto, "monto");
+        this.frecuenciaPago = requireNonNull(frecuenciaPago, "frecuenciaPago");
+        this.fechaFirma = requireNonNull(fechaFirma, "fechaFirma");
+        this.fechaInicio = requireNonNull(fechaInicio, "fechaInicio");
+        this.fechaFin = requireNonNull(fechaFin, "fechaFin");
+        this.estado = requireNonNull(estado, "estado");
+
+        validarPlazos(fechaFirma, fechaInicio, fechaFin);
     }
 
-    //Creacion de Contrato Sin estados
-    public Contrato(IdUsuario idUsuario,
-                    Empresa empresa,
-                    Empleado empleado,
-                    Funciones funciones,
-                    Monto monto,
-                    FrecuenciaPago frecuenciaPago,
-                    FechaFirma fechaFirma,
-                    FechaInicio fechaInicio,
-                    FechaFin fechaFin,
-                    Estado estado) {
-        this.idUsuario = idUsuario;
-        this.empresa = empresa;
-        this.empleado = empleado;
-        this.funciones = funciones;
-        this.monto = monto;
-        this.frecuenciaPago = frecuenciaPago;
-        this.fechaFirma = fechaFirma;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
-        this.estado = estado;
+    public static Contrato crear(
+            final UserId idUsuario,
+            final Empresa empresa,
+            final Empleado empleado,
+            final Funciones funciones,
+            final Monto monto,
+            final FrecuenciaPago frecuenciaPago,
+            final FechaFirma fechaFirma,
+            final FechaInicio fechaInicio,
+            final FechaFin fechaFin) {
+        final Estado estadoInicial =
+                fechaFin.value().isBefore(LocalDate.now()) ? Estado.VENCIDO : Estado.VIGENTE;
+        return new Contrato(
+                null,
+                idUsuario,
+                empresa,
+                empleado,
+                funciones,
+                monto,
+                frecuenciaPago,
+                fechaFirma,
+                fechaInicio,
+                fechaFin,
+                estadoInicial);
     }
 
-    // Contrato cuando está diligenciado
-    public Contrato(IdUsuario idUsuario,
-                    Empresa empresa,
-                    Empleado empleado,
-                    Funciones funciones,
-                    Monto monto,
-                    FrecuenciaPago frecuenciaPago,
-                    FechaFirma fechaFirma,
-                    FechaInicio fechaInicio,
-                    FechaFin fechaFin) {
-        this.idUsuario = idUsuario;
-        this.empresa = empresa;
-        this.empleado = empleado;
-        this.funciones = funciones;
-        this.monto = monto;
-        this.frecuenciaPago = frecuenciaPago;
-        this.fechaFirma = fechaFirma;
-        this.fechaInicio = fechaInicio;
-        this.fechaFin = fechaFin;
+    public Contrato marcarComoVencido() {
+        return new Contrato(
+                id,
+                idUsuario,
+                empresa,
+                empleado,
+                funciones,
+                monto,
+                frecuenciaPago,
+                fechaFirma,
+                fechaInicio,
+                fechaFin,
+                Estado.VENCIDO);
     }
 
-    public IdUsuario getIdUsuario() {
-        return idUsuario;
+    public Contrato marcarComoVigente() {
+        return new Contrato(
+                id,
+                idUsuario,
+                empresa,
+                empleado,
+                funciones,
+                monto,
+                frecuenciaPago,
+                fechaFirma,
+                fechaInicio,
+                fechaFin,
+                Estado.VIGENTE);
     }
 
-    public Empresa getEmpresa() {
-        return empresa;
-    }
-
-    public Empleado getEmpleado() {
-        return empleado;
-    }
-
-    public Funciones getFunciones() {
-        return funciones;
-    }
-
-    public Monto getMonto() {
-        return monto;
-    }
-
-    public FrecuenciaPago getFrecuenciaPago() {
-        return frecuenciaPago;
-    }
-
-    public FechaFirma getFechaFirma() {
-        return fechaFirma;
-    }
-
-    public FechaInicio getFechaInicio() {
-        return fechaInicio;
-    }
-
-    public FechaFin getFechaFin() {
-        return fechaFin;
-    }
-
-    public Estado getEstado() {
-        return estado;
-    }
-
-    public void setIdUsuario(IdUsuario idUsuario) {
-        this.idUsuario = idUsuario;
-    }
-
-    public void setEmpresa(Empresa empresa) {
-        this.empresa = empresa;
-    }
-
-    public void setEmpleado(Empleado empleado) {
-        this.empleado = empleado;
-    }
-
-    public void setFunciones(Funciones funciones) {
-        this.funciones = funciones;
-    }
-
-    public void setMonto(Monto monto) {
-        this.monto = monto;
-    }
-
-    public void setFrecuenciaPago(FrecuenciaPago frecuenciaPago) {
-        this.frecuenciaPago = frecuenciaPago;
-    }
-
-    public void setFechaFirma(FechaFirma fechaFirma) {
-        this.fechaFirma = fechaFirma;
-    }
-
-    public void setFechaInicio(FechaInicio fechaInicio) {
-        this.fechaInicio = fechaInicio;
-    }
-
-    public void setFechaFin(FechaFin fechaFin) {
-        this.fechaFin = fechaFin;
-    }
-
-    public void setEstado(Estado estado) {
-        this.estado = estado;
-    }
-
-    public Contrato crearContrato(){
-        return new Contrato(idUsuario,empresa,empleado,funciones,monto,frecuenciaPago,fechaFirma,fechaInicio,fechaFin);
-    }
-
-    public Contrato contratoVencido(){
-        return new Contrato(idUsuario,empresa,empleado,funciones,monto,frecuenciaPago,fechaFirma,fechaInicio,fechaFin,Estado.VENCIDO);
-    }
-
-
-    public Contrato contratoVigente(){
-        return new Contrato(idUsuario,empresa,empleado,funciones,monto,frecuenciaPago,fechaFirma,fechaInicio,fechaFin,Estado.VIGENTE);
-
-    }
-
-
-    // Regla: Fecha fin no puede estar antes de fecha inicio.
-    public void validarFechas(FechaInicio fechaInicio, FechaFin fechaFin) {
-        if (fechaFin.fecha().isBefore(fechaInicio.fecha())) {
+    private static void validarPlazos(
+            final FechaFirma fechaFirma, final FechaInicio fechaInicio, final FechaFin fechaFin) {
+        if (fechaFin.isBefore(fechaInicio)) {
             throw FechaInvalidaExcepcion.fechaInconsistente();
+        }
+        if (fechaFirma.value().isAfter(fechaFin.value())) {
+            throw FechaInvalidaExcepcion.firmaPosteriorAFin();
         }
     }
 
-
-
+    private static <T> T requireNonNull(final T value, final String fieldName) {
+        if (value == null) {
+            throw ValoresNulosExcepcion.parametroNulo(fieldName);
+        }
+        return value;
+    }
 }
