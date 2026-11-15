@@ -1,23 +1,33 @@
 package com.jcaa.usersmanagement.domain.event;
 
-import com.jcaa.usersmanagement.domain.valueobject.UserId;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 import java.util.Map;
 import lombok.Getter;
 
 @Getter
-public final class UserDeletedDomainEvent extends DomainEvent {
+public final class ContratoDeletedDomainEvent extends DomainEvent {
 
-  private static final String EVENT_NAME = "user.deleted";
+  private static final String EVENT_NAME = "contrato.deleted";
 
-  private final UserId userId;
+  private final Contrato contrato;
 
-  public UserDeletedDomainEvent(final UserId userId) {
+  public ContratoDeletedDomainEvent(final Contrato contrato) {
     super(EVENT_NAME);
-    this.userId = userId;
+    this.contrato = contrato;
   }
 
   @Override
   public Map<String, String> payload() {
-    return Map.of("id", userId.value());
+    return Map.ofEntries(
+            Map.entry("idUsuario", contrato.getIdUsuario().value()),
+            Map.entry("empresa", contrato.getEmpresa().value()),
+            Map.entry("empleado", contrato.getEmpleado().value()),
+            Map.entry("funciones", contrato.getFunciones().value()),
+            Map.entry("monto", contrato.getMonto().toString()),
+            Map.entry("frecuenciaPago", contrato.getFrecuenciaPago().name()),
+            Map.entry("fechaFirma", contrato.getFechaFirma().toString()),
+            Map.entry("fechaInicio", contrato.getFechaInicio().toString()),
+            Map.entry("fechaFin", contrato.getFechaFin().toString()),
+            Map.entry("estado", contrato.getEstado().name()));
   }
 }

@@ -1,28 +1,33 @@
 package com.jcaa.usersmanagement.domain.event;
 
-import com.jcaa.usersmanagement.domain.model.UserModel;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 import java.util.Map;
 import lombok.Getter;
 
 @Getter
-public final class UserCreatedDomainEvent extends DomainEvent {
+public final class ContratoCreatedDomainEvent extends DomainEvent {
 
-  private static final String EVENT_NAME = "user.created";
+  private static final String EVENT_NAME = "contrato.created";
 
-  private final UserModel user;
+  private final Contrato contrato;
 
-  public UserCreatedDomainEvent(final UserModel user) {
+  public ContratoCreatedDomainEvent(final Contrato contrato) {
     super(EVENT_NAME);
-    this.user = user;
+    this.contrato = contrato;
   }
 
   @Override
   public Map<String, String> payload() {
-    return Map.of(
-        "id", user.getId().value(),
-        "name", user.getName().value(),
-        "email", user.getEmail().value(),
-        "role", user.getRole().name(),
-        "status", user.getStatus().name());
+    return Map.ofEntries(
+            Map.entry("idUsuario", contrato.getIdUsuario().value()),
+            Map.entry("empresa", contrato.getEmpresa().value()),
+            Map.entry("empleado", contrato.getEmpleado().value()),
+            Map.entry("funciones", contrato.getFunciones().value()),
+            Map.entry("monto", contrato.getMonto().toString()),
+            Map.entry("frecuenciaPago", contrato.getFrecuenciaPago().name()),
+            Map.entry("fechaFirma", contrato.getFechaFirma().toString()),
+            Map.entry("fechaInicio", contrato.getFechaInicio().toString()),
+            Map.entry("fechaFin", contrato.getFechaFin().toString()),
+            Map.entry("estado", contrato.getEstado().name()));
   }
 }
