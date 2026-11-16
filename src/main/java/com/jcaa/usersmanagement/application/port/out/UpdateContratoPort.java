@@ -1,7 +1,7 @@
 package com.jcaa.usersmanagement.application.port.out;
 
-import com.jcaa.usersmanagement.domain.model.UserModel;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 
-public interface UpdateUserPort {
-  UserModel update(UserModel user);
+public interface UpdateContratoPort {
+  Contrato update(Contrato contrato);
 }

@@ -1,8 +1,8 @@
 package com.jcaa.usersmanagement.application.port.in;
 
-import com.jcaa.usersmanagement.domain.model.UserModel;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 import java.util.List;
 
-public interface GetAllUsersUseCase {
-  List<UserModel> execute();
+public interface GetAllContratoUseCase {
+  List<Contrato> execute();
 }

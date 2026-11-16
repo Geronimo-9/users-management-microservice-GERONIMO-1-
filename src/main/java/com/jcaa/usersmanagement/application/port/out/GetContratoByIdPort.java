@@ -1,9 +1,8 @@
 package com.jcaa.usersmanagement.application.port.out;
 
-import com.jcaa.usersmanagement.domain.model.UserModel;
-import com.jcaa.usersmanagement.domain.valueobject.UserId;
+import com.jcaa.usersmanagement.domain.model.Contrato;
 import java.util.Optional;
 
-public interface GetUserByIdPort {
-  Optional<UserModel> getById(UserId userId);
+public interface GetContratoByIdPort {
+  Optional<Contrato> getById(Integer contratoId);
 }
