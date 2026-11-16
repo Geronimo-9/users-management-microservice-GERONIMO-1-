@@ -31,3 +31,21 @@ VALUES (
     'ACTIVE'
 );
 
+
+CREATE TABLE IF NOT EXISTS contratos (
+                                         id              INT AUTO_INCREMENT PRIMARY KEY,
+                                         id_usuario      VARCHAR(36)    NOT NULL,
+                                         empresa         VARCHAR(150)   NOT NULL,
+                                         empleado        VARCHAR(150)   NOT NULL,
+                                         funciones       TEXT           NOT NULL,
+                                         monto           DECIMAL(15, 2) NOT NULL,
+                                         frecuencia_pago ENUM('SEMANAL', 'QUINCENAL', 'MENSUAL', 'SEMESTRAL', 'ANUAL') NOT NULL,
+                                         fecha_firma     DATE           NOT NULL,
+                                         fecha_inicio    DATE           NOT NULL,
+                                         fecha_fin       DATE           NOT NULL,
+                                         estado          ENUM('VIGENTE', 'VENCIDO') NOT NULL DEFAULT 'VIGENTE',
+                                         created_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP,
+                                         updated_at      DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+                                         CONSTRAINT fk_contratos_usuario FOREIGN KEY (id_usuario) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
