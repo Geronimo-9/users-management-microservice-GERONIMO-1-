@@ -1,8 +1,17 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto;
 
-public record UserResponse(
-    String id,
-    String name,
-    String email,
-    String role,
-    String status) {}
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public record ContratoResponse(
+        Integer id,
+        String idUsuario,
+        String empresa,
+        String empleado,
+        String funciones,
+        BigDecimal monto,
+        String frecuenciaPago,
+        LocalDate fechaFirma,
+        LocalDate fechaInicio,
+        LocalDate fechaFin,
+        String estado) {}

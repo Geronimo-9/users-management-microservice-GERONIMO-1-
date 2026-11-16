@@ -1,8 +1,15 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto;
 
-public record CreateUserRequest(
-    String id,
-    String name,
-    String email,
-    String password,
-    String role) {}
+import java.math.BigDecimal;
+import java.time.LocalDate;
+
+public record CreateContratoRequest(
+        String idUsuario,
+        String empresa,
+        String empleado,
+        String funciones,
+        BigDecimal monto,
+        String frecuenciaPago,
+        LocalDate fechaFirma,
+        LocalDate fechaInicio,
+        LocalDate fechaFin) {}

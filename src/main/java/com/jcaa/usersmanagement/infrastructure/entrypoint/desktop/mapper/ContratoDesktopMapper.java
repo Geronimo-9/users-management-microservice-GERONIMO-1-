@@ -1,59 +1,71 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.mapper;
 
-import com.jcaa.usersmanagement.application.service.dto.command.CreateUserCommand;
-import com.jcaa.usersmanagement.application.service.dto.command.DeleteUserCommand;
-import com.jcaa.usersmanagement.application.service.dto.command.LoginCommand;
-import com.jcaa.usersmanagement.application.service.dto.command.UpdateUserCommand;
-import com.jcaa.usersmanagement.application.service.dto.query.GetUserByIdQuery;
-import com.jcaa.usersmanagement.domain.model.UserModel;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.CreateUserRequest;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.LoginRequest;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UpdateUserRequest;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UserResponse;
-
+import com.jcaa.usersmanagement.application.service.dto.command.CreateContratoCommand;
+import com.jcaa.usersmanagement.application.service.dto.command.DeleteContratoCommand;
+import com.jcaa.usersmanagement.application.service.dto.command.UpdateContratoCommand;
+import com.jcaa.usersmanagement.application.service.dto.query.GetContratoByIdQuery;
+import com.jcaa.usersmanagement.domain.model.Contrato;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.ContratoResponse;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.CreateContratoRequest;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.dto.UpdateContratoRequest;
 import java.util.List;
+import lombok.experimental.UtilityClass;
 
-public final class UserDesktopMapper {
+@UtilityClass
+public class ContratoDesktopMapper {
 
-  private UserDesktopMapper() {}
-
-  public static CreateUserCommand toCreateCommand(final CreateUserRequest request) {
-    return new CreateUserCommand(
-        request.id(), request.name(), request.email(), request.password(), request.role());
+  public CreateContratoCommand toCreateCommand(final CreateContratoRequest request) {
+    return new CreateContratoCommand(
+            request.idUsuario(),
+            request.empresa(),
+            request.empleado(),
+            request.funciones(),
+            request.monto(),
+            request.frecuenciaPago(),
+            request.fechaFirma(),
+            request.fechaInicio(),
+            request.fechaFin());
   }
 
-  public static UpdateUserCommand toUpdateCommand(final UpdateUserRequest request) {
-    return new UpdateUserCommand(
-        request.id(),
-        request.name(),
-        request.email(),
-        request.password(),
-        request.role(),
-        request.status());
+  public UpdateContratoCommand toUpdateCommand(final UpdateContratoRequest request) {
+    return new UpdateContratoCommand(
+            request.id(),
+            request.idUsuario(),
+            request.empresa(),
+            request.empleado(),
+            request.funciones(),
+            request.monto(),
+            request.frecuenciaPago(),
+            request.fechaFirma(),
+            request.fechaInicio(),
+            request.fechaFin(),
+            request.estado());
   }
 
-  public static DeleteUserCommand toDeleteCommand(final String id) {
-    return new DeleteUserCommand(id);
+  public DeleteContratoCommand toDeleteCommand(final Integer id) {
+    return new DeleteContratoCommand(id);
   }
 
-  public static GetUserByIdQuery toGetByIdQuery(final String id) {
-    return new GetUserByIdQuery(id);
+  public GetContratoByIdQuery toGetByIdQuery(final Integer id) {
+    return new GetContratoByIdQuery(id);
   }
 
-  public static LoginCommand toLoginCommand(final LoginRequest request) {
-    return new LoginCommand(request.email(), request.password());
+  public ContratoResponse toResponse(final Contrato contrato) {
+    return new ContratoResponse(
+            contrato.getId(),
+            contrato.getIdUsuario().value(),
+            contrato.getEmpresa().value(),
+            contrato.getEmpleado().value(),
+            contrato.getFunciones().value(),
+            contrato.getMonto().value(),
+            contrato.getFrecuenciaPago().name(),
+            contrato.getFechaFirma().value(),
+            contrato.getFechaInicio().value(),
+            contrato.getFechaFin().value(),
+            contrato.getEstado().name());
   }
 
-  public static UserResponse toResponse(final UserModel user) {
-    return new UserResponse(
-        user.getId().value(),
-        user.getName().value(),
-        user.getEmail().value(),
-        user.getRole().name(),
-        user.getStatus().name());
-  }
-
-  public static List<UserResponse> toResponseList(final List<UserModel> users) {
-    return users.stream().map(UserDesktopMapper::toResponse).toList();
+  public List<ContratoResponse> toResponseList(final List<Contrato> contratos) {
+    return contratos.stream().map(ContratoDesktopMapper::toResponse).toList();
   }
 }

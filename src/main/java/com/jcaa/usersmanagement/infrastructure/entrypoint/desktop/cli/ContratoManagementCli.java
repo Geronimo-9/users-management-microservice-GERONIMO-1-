@@ -1,90 +1,87 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli;
 
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.CreateUserHandler;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.DeleteUserHandler;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.FindUserByIdHandler;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.ListUsersHandler;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.LoginHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.CreateContratoHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.DeleteContratoHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.FindContratoByIdHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.ListContratoHandler;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.OperationHandler;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.UpdateUserHandler;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.handler.UpdateContratoHandler;
 import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ConsoleIO;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.UserResponsePrinter;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.menu.MenuOption;
-import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.UserController;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.cli.io.ContratoResponsePrinter;
+import com.jcaa.usersmanagement.infrastructure.entrypoint.desktop.controller.ContratoController;
 import jakarta.validation.ConstraintViolationException;
 import java.util.Map;
-import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 
 @RequiredArgsConstructor
-public final class UserManagementCli {
+public final class ContratoManagementCli {
 
   private static final String BANNER =
-      """
-      ==========================================
-           Users Management System
-      ==========================================""";
+          """
+          ==========================================
+              Contratos Management System
+          ==========================================""";
 
   private static final String MENU_BORDER = "  ==========================================";
 
-  private final UserController userController;
+  private final ContratoController contratoController;
   private final ConsoleIO console;
 
   public void start() {
     console.println(BANNER);
-    final UserResponsePrinter printer = new UserResponsePrinter(console);
+    final ContratoResponsePrinter printer = new ContratoResponsePrinter(console);
     runLoop(buildHandlers(printer));
   }
 
-  private void runLoop(final Map<MenuOption, OperationHandler> handlers) {
+  private void runLoop(final Map<Integer, OperationHandler> handlers) {
     boolean running = true;
     while (running) {
       printMenu();
       final int choice = console.readInt("\n  Option: ");
-      final Optional<MenuOption> option = MenuOption.fromNumber(choice);
-
-      if (option.isEmpty()) {
-        console.println("  Invalid option. Please try again.");
-      } else if (option.get() == MenuOption.EXIT) {
+      if (choice == 0) {
         console.println("\n  Goodbye!\n");
         running = false;
+      } else if (handlers.containsKey(choice)) {
+        executeHandler(handlers.get(choice));
       } else {
-        executeHandler(handlers, option.get());
+        console.println("  Invalid option. Please try again.");
       }
     }
   }
 
-  private void executeHandler(
-      final Map<MenuOption, OperationHandler> handlers, final MenuOption option) {
+  private void executeHandler(final OperationHandler handler) {
     try {
-      handlers.get(option).handle();
+      handler.handle();
     } catch (final ConstraintViolationException exception) {
       console.println("  Validation errors:");
-      exception.getConstraintViolations()
-          .forEach(violation -> console.println("    - " + violation.getMessage()));
+      exception
+              .getConstraintViolations()
+              .forEach(violation -> console.println("    - " + violation.getMessage()));
     } catch (final RuntimeException exception) {
       console.println("  Unexpected error: " + exception.getMessage());
     }
   }
 
-  private Map<MenuOption, OperationHandler> buildHandlers(final UserResponsePrinter printer) {
+  private Map<Integer, OperationHandler> buildHandlers(final ContratoResponsePrinter printer) {
     return Map.of(
-        MenuOption.LIST_USERS,  new ListUsersHandler(userController, printer),
-        MenuOption.FIND_USER,   new FindUserByIdHandler(userController, console, printer),
-        MenuOption.CREATE_USER, new CreateUserHandler(userController, console, printer),
-        MenuOption.UPDATE_USER, new UpdateUserHandler(userController, console, printer),
-        MenuOption.DELETE_USER, new DeleteUserHandler(userController, console),
-        MenuOption.LOGIN,       new LoginHandler(userController, console, printer));
+            1, new ListContratoHandler(contratoController, printer),
+            2, new FindContratoByIdHandler(contratoController, console, printer),
+            3, new CreateContratoHandler(contratoController, console, printer),
+            4, new UpdateContratoHandler(contratoController, console, printer),
+            5, new DeleteContratoHandler(contratoController, console));
   }
 
   private void printMenu() {
     console.println();
     console.println(MENU_BORDER);
-    console.println("    Main Menu");
+    console.println("    Contratos Menu");
     console.println(MENU_BORDER);
-    for (final MenuOption option : MenuOption.values()) {
-      console.printf("    [%d] %s%n", option.getNumber(), option.getDescription());
-    }
+    console.println("    [1] List all contratos");
+    console.println("    [2] Find contrato by ID");
+    console.println("    [3] Create contrato");
+    console.println("    [4] Update contrato");
+    console.println("    [5] Delete contrato");
+    console.println("    [0] Exit");
     console.println(MENU_BORDER);
   }
 }

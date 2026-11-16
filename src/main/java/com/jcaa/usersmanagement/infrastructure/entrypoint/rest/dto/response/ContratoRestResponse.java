@@ -1,9 +1,17 @@
 package com.jcaa.usersmanagement.infrastructure.entrypoint.rest.dto.response;
 
-public record UserRestResponse(
-    String id,
-    String name,
-    String email,
-    String role,
-    String status) {}
+import java.math.BigDecimal;
+import java.time.LocalDate;
 
+public record ContratoRestResponse(
+        Integer id,
+        String idUsuario,
+        String empresa,
+        String empleado,
+        String funciones,
+        BigDecimal monto,
+        String frecuenciaPago,
+        LocalDate fechaFirma,
+        LocalDate fechaInicio,
+        LocalDate fechaFin,
+        String estado) {}
